@@ -7,6 +7,9 @@ import numpy as np
 from Config import bottle_neck
 
 
+def convert_to_onehot(sca_label, class_num=31):
+    return np.eye(class_num)[sca_label]
+
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152']
 
@@ -160,6 +163,7 @@ class DSAN(nn.Module):
     def __init__(self, num_classes=31):
         super(DSAN, self).__init__()
         self.feature_layers = resnet50(True)
+        self.class_num = num_classes
 
         if bottle_neck:
             self.bottle = nn.Linear(2048, 256)
@@ -168,7 +172,7 @@ class DSAN(nn.Module):
             self.cls_fc = nn.Linear(2048, num_classes)
 
 
-    def forward(self, source, target, s_label):
+    def forward(self, source, target, s_label, comp=None):
         source = self.feature_layers(source)
         if bottle_neck:
             source = self.bottle(source)
@@ -178,7 +182,19 @@ class DSAN(nn.Module):
             if bottle_neck:
                 target = self.bottle(target)
             t_label = self.cls_fc(target)
-            loss = mmd.lmmd(source, target, s_label, torch.nn.functional.softmax(t_label, dim=1))
+            if comp==None:
+                loss = mmd.lmmd(source, target, s_label, torch.nn.functional.softmax(t_label, dim=1), class_num=self.class_num)
+            else:
+                component, class_trans, comp_num = comp[0], comp[1], comp[2]
+                source = torch.matmul(source, component)
+                target = torch.matmul(target, component)
+                s_label = convert_to_onehot(s_label, self.class_num)
+                s_label = torch.matmul(s_label, class_trans)
+                s_label = torch.nn.functional.softmax(s_label, dim=1)
+                t_label = torch.nn.functional.softmax(t_label, dim=1)
+                t_label = torch.matmul(t_label, class_trans)
+                t_label = torch.nn.functional.softmax(t_label, dim=1)
+                loss = mmd.lmmd(source, target, s_label, t_label, class_num=comp_num, comp=True)
         else:
             loss = 0
         return s_pred, loss
