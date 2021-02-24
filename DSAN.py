@@ -22,6 +22,7 @@ def get_comp(classifier, num_classes, ratio):
     w = list(classifier.parameters())[0].detach().cpu().t().numpy() # feature x c
     u, sigmoid, vt = svd(w)
     u = torch.from_numpy(u)
+    vt = torch.from_numpy(vt)
     sigmoid = torch.from_numpy(sigmoid)
     sigmoid = torch.diag(sigmoid[:comp_num])
     return [torch.matmul(u[:,:comp_num], sigmoid).cuda(), vt.t()[:,:comp_num], comp_num]  # feature x comp_num
@@ -114,7 +115,7 @@ if __name__ == '__main__':
         model.cuda()
     time_start=time.time()
     for epoch in range(1, epochs + 1):
-        if ratio>0 and epoch>5:
+        if ratio>0 and epoch>=5:
             comp = get_comp(model.cls_fc, class_num, ratio)
         else:
             comp = None

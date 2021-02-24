@@ -194,7 +194,7 @@ class DSAN(nn.Module):
                 t_label = torch.nn.functional.softmax(t_label, dim=1)
                 t_label = torch.matmul(t_label, class_trans)
                 t_label = torch.nn.functional.softmax(t_label, dim=1)
-                loss = mmd.lmmd(source, target, s_label, t_label, class_num=comp_num, comp=True)
+                loss = mmd.lmmd(source, target, s_label, t_label, class_num=comp_num, comp=comp)
         else:
             loss = 0
         return s_pred, loss
