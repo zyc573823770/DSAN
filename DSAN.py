@@ -1,15 +1,30 @@
 from __future__ import print_function
+
+import math
+import os
+import time
+from math import ceil
+
 import torch
 import torch.nn.functional as F
+from numpy.linalg import svd
 from torch.autograd import Variable
-import os
-import math
+
 import data_loader
 import ResNet as models
-from Weight import Weight
 from Config import *
-import time
+from Weight import Weight
+
 os.environ["CUDA_VISIBLE_DEVICES"] = cuda_id
+
+def get_comp(classifier, num_classes, ratio):
+    comp_num = ceil(num_classes*ratio)
+    w = list(classifier.parameters())[0].detach().cpu().t().numpy() # feature x c
+    u, sigmoid, vt = svd(w)
+    u = torch.from_numpy(u)
+    sigmoid = torch.from_numpy(sigmoid)
+    sigmoid = torch.diag(sigmoid[:comp_num])
+    return [torch.matmul(u[:,:comp_num], sigmoid).cuda(), vt.t()[:,:comp_num], comp_num]  # feature x comp_num
 
 cuda = not no_cuda and torch.cuda.is_available()
 #torch.manual_seed(seed)
@@ -27,7 +42,7 @@ len_target_dataset = len(target_test_loader.dataset)
 len_source_loader = len(source_loader)
 len_target_loader = len(target_train_loader)
 
-def train(epoch, model):
+def train(epoch, model, comp):
     LEARNING_RATE = lr / math.pow((1 + 10 * (epoch - 1) / epochs), 0.75)
     print('learning rate{: .4f}'.format(LEARNING_RATE) )
     if bottle_neck:
@@ -59,7 +74,7 @@ def train(epoch, model):
         data_target = Variable(data_target)
 
         optimizer.zero_grad()
-        label_source_pred, loss_mmd = model(data_source, data_target, label_source)
+        label_source_pred, loss_mmd = model(data_source, data_target, label_source, comp)
         loss_cls = F.nll_loss(F.log_softmax(label_source_pred, dim=1), label_source)
         lambd = 2 / (1 + math.exp(-10 * (epoch) / epochs)) - 1
         loss = loss_cls + param * lambd * loss_mmd
@@ -99,7 +114,11 @@ if __name__ == '__main__':
         model.cuda()
     time_start=time.time()
     for epoch in range(1, epochs + 1):
-        train(epoch, model)
+        if ratio>0 and epoch>5:
+            comp = get_comp(model.cls_fc, class_num, ratio)
+        else:
+            comp = None
+        train(epoch, model, comp)
         t_correct = test(model)
         if t_correct > correct:
             correct = t_correct

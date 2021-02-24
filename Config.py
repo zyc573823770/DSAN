@@ -13,3 +13,4 @@ bottle_neck = False
 root_path = "/data/zyc/office31/"
 source_name = "amazon"
 target_name = "webcam"
+ratio = 1
