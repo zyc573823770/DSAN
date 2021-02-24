@@ -78,7 +78,8 @@ def train(epoch, model, comp):
         label_source_pred, loss_mmd = model(data_source, data_target, label_source, comp)
         loss_cls = F.nll_loss(F.log_softmax(label_source_pred, dim=1), label_source)
         lambd = 2 / (1 + math.exp(-10 * (epoch) / epochs)) - 1
-        loss = loss_cls + param * lambd * loss_mmd
+        # loss = loss_cls + param * lambd * loss_mmd
+        loss = loss_cls + loss_mmd
         loss.backward()
         optimizer.step()
         if i % log_interval == 0:
