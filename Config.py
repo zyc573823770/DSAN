@@ -10,6 +10,6 @@ l2_decay = 5e-4
 class_num = 31
 param = 0.3
 bottle_neck = True
-root_path = "/data/zyc/office31"
+root_path = "/data/zyc/office31/"
 source_name = "amazon"
 target_name = "webcam"
