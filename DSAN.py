@@ -25,7 +25,7 @@ def get_comp(classifier, num_classes, ratio):
     vt = torch.from_numpy(vt)
     sigmoid = torch.from_numpy(sigmoid)
     sigmoid = torch.diag(sigmoid[:comp_num])
-    return [torch.matmul(u[:,:comp_num], sigmoid).cuda(), vt.t()[:,:comp_num], comp_num]  # feature x comp_num
+    return [torch.matmul(u[:,:comp_num], sigmoid).cuda(), vt.cuda().t()[:,:comp_num], comp_num]  # feature x comp_num
 
 cuda = not no_cuda and torch.cuda.is_available()
 #torch.manual_seed(seed)
