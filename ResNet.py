@@ -188,6 +188,7 @@ class DSAN(nn.Module):
                 component, class_trans, comp_num = comp[0], comp[1], comp[2]
                 source = torch.matmul(source, component)
                 target = torch.matmul(target, component)
+                s_label = s_label.cpu().data.numpy()
                 s_label = convert_to_onehot(s_label, self.class_num)
                 s_label = torch.matmul(s_label, class_trans)
                 s_label = torch.nn.functional.softmax(s_label, dim=1)

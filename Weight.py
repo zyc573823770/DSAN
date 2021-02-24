@@ -13,16 +13,9 @@ class Weight:
         if comp == None:
             s_sca_label = s_label.cpu().data.numpy()
             s_vec_label = convert_to_onehot(s_sca_label, class_num=class_num)
-            s_sum = np.sum(s_vec_label, axis=0).reshape(1, class_num)
-            s_sum[s_sum == 0] = 100
-            s_vec_label = s_vec_label / s_sum
-        else:
-            # s_sca_label = s_label.cpu().data.max(1)[1].numpy()
-
-            s_vec_label = s_label.cpu().data.numpy()
-            s_sum = np.sum(s_vec_label, axis=0).reshape(1, class_num)
-            s_sum[s_sum == 0] = 100
-            s_vec_label = s_vec_label / s_sum
+        s_sum = np.sum(s_vec_label, axis=0).reshape(1, class_num)
+        s_sum[s_sum == 0] = 100
+        s_vec_label = s_vec_label / s_sum
 
         # t_sca_label = t_label.cpu().data.max(1)[1].numpy()
         #t_vec_label = convert_to_onehot(t_sca_label)
