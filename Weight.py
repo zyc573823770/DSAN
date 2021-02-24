@@ -10,9 +10,9 @@ class Weight:
     def cal_weight(s_label, t_label, type='visual', batch_size=32, class_num=31, comp=None):
         batch_size = s_label.size()[0]
 
-        s_sca_label = s_label.cpu().data.numpy()
+        s_vec_label = s_label.cpu().data.numpy()
         if comp == None:
-            s_vec_label = convert_to_onehot(s_sca_label, class_num=class_num)
+            s_vec_label = convert_to_onehot(s_vec_label, class_num=class_num)
         s_sum = np.sum(s_vec_label, axis=0).reshape(1, class_num)
         s_sum[s_sum == 0] = 100
         s_vec_label = s_vec_label / s_sum
