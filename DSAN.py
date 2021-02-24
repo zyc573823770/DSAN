@@ -115,7 +115,7 @@ if __name__ == '__main__':
         model.cuda()
     time_start=time.time()
     for epoch in range(1, epochs + 1):
-        if ratio>0 and epoch>=5:
+        if ratio>0 and epoch>=1:
             comp = get_comp(model.cls_fc, class_num, ratio)
         else:
             comp = None
