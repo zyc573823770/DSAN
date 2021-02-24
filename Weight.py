@@ -54,3 +54,12 @@ class Weight:
             weight_tt = np.array([0])
             weight_st = np.array([0])
         return weight_ss.astype('float32'), weight_tt.astype('float32'), weight_st.astype('float32')
+
+    @staticmethod
+    def normal(s_label, t_label):
+        ns = s_label.size(0)
+        nt = t_label.size(0)
+        weight_ss = np.array([1/(ns**2)])
+        weight_tt = np.array([1/(nt**2)])
+        weight_st = np.array([1/(ns*nt)])
+        return weight_ss.astype('float32'), weight_tt.astype('float32'), weight_st.astype('float32')

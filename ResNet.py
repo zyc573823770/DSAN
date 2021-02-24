@@ -188,14 +188,14 @@ class DSAN(nn.Module):
                 component, class_trans, comp_num = comp[0], comp[1], comp[2]
                 source = torch.matmul(source, component)
                 target = torch.matmul(target, component)
-                s_label = s_label.cpu().data.numpy()
-                s_label = convert_to_onehot(s_label, self.class_num)
-                s_label = torch.from_numpy(s_label).float().cuda()
-                s_label = torch.matmul(s_label, class_trans)
-                s_label = torch.nn.functional.softmax(s_label, dim=1)
-                t_label = torch.nn.functional.softmax(t_label, dim=1)
-                t_label = torch.matmul(t_label, class_trans)
-                t_label = torch.nn.functional.softmax(t_label, dim=1)
+                # s_label = s_label.cpu().data.numpy()
+                # s_label = convert_to_onehot(s_label, self.class_num)
+                # s_label = torch.from_numpy(s_label).float().cuda()
+                # s_label = torch.matmul(s_label, class_trans)
+                # s_label = torch.nn.functional.softmax(s_label, dim=1)
+                # t_label = torch.nn.functional.softmax(t_label, dim=1)
+                # t_label = torch.matmul(t_label, class_trans)
+                # t_label = torch.nn.functional.softmax(t_label, dim=1)
                 loss = mmd.lmmd(source, target, s_label, t_label, class_num=comp_num, comp=comp)
         else:
             loss = 0
